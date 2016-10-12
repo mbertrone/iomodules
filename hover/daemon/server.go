@@ -17,11 +17,12 @@ package daemon
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 
 	"github.com/gonum/graph"
 	"github.com/gonum/graph/traverse"
@@ -511,6 +512,11 @@ func (s *HoverServer) handleLinkPost(r *http.Request) routeResponse {
 	}
 	from := s.lookupNode(req.From)
 	to := s.lookupNode(req.To)
+
+	//fmt.Printf("****BEFORE LINK POST*******\n\n")
+	// spew.Dump(s.g)
+	// spew.Dump(s.nlmon)
+
 	if s.g.HasEdgeBetween(from, to) {
 		panic(fmt.Errorf("Link already exists between %q and %q", from, to))
 	}
@@ -594,6 +600,10 @@ func (s *HoverServer) handleLinkDelete(r *http.Request) routeResponse {
 	}
 
 	s.recomputePolicies()
+	//fmt.Printf("****AFTER LINK DELETE*******\n\n")
+	// spew.Dump(s.g)
+	// spew.Dump(s.nlmon)
+
 	return routeResponse{}
 }
 

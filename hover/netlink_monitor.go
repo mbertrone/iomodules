@@ -241,6 +241,12 @@ func (nm *NetlinkMonitor) ensureInterface(g canvas.Graph, node InterfaceNode) er
 		if err := ensureIngressFd(node.Link(), chain.FD()); err != nil {
 			return err
 		}
+	case 0:
+		//TODO It would be better if done in other place!
+		Debug.Printf("NetlinkMonitor node with no node into graph-> set ID = -1\n")
+		Debug.Printf("Node iface-id: %d  fd: %d\n", node.ID(), node.FD())
+		node.ReleaseInterfaceID(node.ID())
+		node.SetID(-1)
 	default:
 		return fmt.Errorf("Invalid # edges for node %s, must be 2, got %d", node.Path(), deg)
 	}
@@ -248,10 +254,12 @@ func (nm *NetlinkMonitor) ensureInterface(g canvas.Graph, node InterfaceNode) er
 }
 
 func (nm *NetlinkMonitor) EnsureInterfaces(g canvas.Graph) {
+	Debug.Printf("EnsureIntefaces\n")
 	nm.flush <- struct{}{}
 	nm.mtx.Lock()
 	defer nm.mtx.Unlock()
 	for _, node := range nm.nodes {
+		Debug.Printf("EnsureInterface id:%d fd:%d detail:%+v \n", node.ID(), node.FD(), node)
 		if err := nm.ensureInterface(g, node); err != nil {
 			panic(err)
 		}

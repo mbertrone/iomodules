@@ -180,9 +180,41 @@ func (h *Renderer) Run(g canvas.Graph, nodes []InterfaceNode) {
 				}
 				//Debug.Printf(" %s:%d -> %s:%d\n", this.Path(), i, target.Path(), target.ID())
 			}
+
 			if e.IsDeleted() {
+				Debug.Printf("Removing edge from %d to %d -> %+v\n", e.From().ID(), e.To().ID(), e)
 				g.RemoveEdge(e)
 			}
+
+			//Calculare reverse edge
+			e2 := g.E(t, this)
+			//Checkif reverse edge is deleted
+			if e2.IsDeleted() {
+				Debug.Printf("Removing edge from %d to %d -> %+v\n", e2.From().ID(), e2.To().ID(), e)
+				g.RemoveEdge(e2)
+			}
+			//TODO IMPORTANTE
+			//TRovare un modo per assegnare ID() = -1 al netlink monitor node corrispondente all'interfaccia
+
+			if g.Degree(t) == 0 {
+				// fmt.Printf("*****%s****\n%+v\n", g.Node(t.ID()).String(), g.Node(t.ID()))
+				modulename := g.Node(t.ID()).String()
+				if modulename[0:1] == "i" {
+					Debug.Printf("Removing node %s %d from graph\n", modulename, t.ID())
+					g.RemoveNode(t)
+				}
+			}
+
+			if g.Degree(this) == 0 {
+				modulename := g.Node(this.ID()).String()
+				if modulename[0:1] == "i" {
+					// fmt.Printf("*****%s****\n%+v\n", g.Node(this.ID()).String(), g.Node(this.ID()))
+					Debug.Printf("Removing node %s %d from graph\n", modulename, t.ID())
+					g.RemoveNode(this)
+
+				}
+			}
+
 		}
 	}
 	t := canvas.NewDepthFirst(visitFn, filterInterfaceNode)
